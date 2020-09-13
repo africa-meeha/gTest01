@@ -148,10 +148,14 @@ int main(int argc, char *argv[])
         dest.x = (int) x_pos;
 
         // clear the window
+        SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
         SDL_RenderClear(rend);
 
         // draw the image to the window
         SDL_RenderCopy(rend, tex, NULL, &dest);
+
+        SDL_SetRenderDrawColor(rend, 255,0,0,255);
+        SDL_RenderDrawRect(rend, &dest);
         SDL_RenderPresent(rend);
 
         // wait 1/60th of a second
