@@ -14,6 +14,14 @@
 // speed in pixels/second
 #define SPEED (100)
 
+void fix_border(SDL_Rect *border) {
+    border->x -= 1+1;
+    border->y -= 1-(border->h / 11);
+    border->w += 1 -(border->w / 60)+1+1;
+    border->h += 1-(33 * border->h / 100) +1;
+}
+
+
 int main(int argc, char *argv[])
 {
     // attempt to initialize graphics and timer system
@@ -60,7 +68,7 @@ int main(int argc, char *argv[])
 
 
 
-    SDL_Surface* surface = TTF_RenderText_Solid(myfont, "Your text", White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+    SDL_Surface* surface = TTF_RenderText_Solid(myfont, "255", White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 
     // load the image into memory using SDL_image library function
 //    SDL_Surface* surface = IMG_Load("resources/hello.png");
@@ -86,7 +94,7 @@ int main(int argc, char *argv[])
     }
 
     // struct to hold the position and size of the sprite
-    SDL_Rect dest;
+    SDL_Rect dest, border;
 
     // get and scale the dimensions of texture
     SDL_QueryTexture(tex, NULL, NULL, &dest.w, &dest.h);
@@ -94,12 +102,15 @@ int main(int argc, char *argv[])
     //dest.h /= 4;
 
     // start sprite in center of screen
-    float x_pos = (WINDOW_WIDTH - dest.w) / 3;
-    float y_pos = (WINDOW_HEIGHT - dest.h) / 2;
+    dest.x = (WINDOW_WIDTH - dest.w) / 2;
+    dest.y = (WINDOW_HEIGHT - dest.h) / 2;
 
-    // give sprite initial velocity
-    float x_vel = SPEED;
-    float y_vel = SPEED;
+    border = dest;
+//    border.x -= 1+1;
+//    border.y -= 1-(border.h / 11);
+//    border.w += 1 -(border.w / 60)+1+1;
+//    border.h += 1-(33 * border.h / 100) +1;
+    fix_border(&border);
 
     // set to 1 when window close button is pressed
     int close_requested = 0;
@@ -117,35 +128,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // collision detection with bounds
-        if (x_pos <= 0)
-        {
-            x_pos = 0;
-            x_vel = -x_vel;
-        }
-        if (y_pos <= 0)
-        {
-            y_pos = 0;
-            y_vel = -y_vel;
-        }
-        if (x_pos >= WINDOW_WIDTH - dest.w)
-        {
-            x_pos = WINDOW_WIDTH - dest.w;
-            x_vel = -x_vel;
-        }
-        if (y_pos >= WINDOW_HEIGHT - dest.h)
-        {
-            y_pos = WINDOW_HEIGHT - dest.h;
-            y_vel = -y_vel;
-        }
 
-        // update positions
-        x_pos += x_vel / 60;
-        y_pos += y_vel / 60;
-
-        // set the positions in the struct
-        dest.y = (int) y_pos;
-        dest.x = (int) x_pos;
 
         // clear the window
         SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
@@ -155,7 +138,7 @@ int main(int argc, char *argv[])
         SDL_RenderCopy(rend, tex, NULL, &dest);
 
         SDL_SetRenderDrawColor(rend, 255,0,0,255);
-        SDL_RenderDrawRect(rend, &dest);
+        SDL_RenderDrawRect(rend, &border);
         SDL_RenderPresent(rend);
 
         // wait 1/60th of a second
