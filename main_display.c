@@ -21,6 +21,28 @@ void fix_border(SDL_Rect *border) {
     border->h += 1-(33 * border->h / 100) +1;
 }
 
+void draw_grid(SDL_Renderer *rend, int x, int y, int cell_w, int cell_h, int xcells, int ycells) {
+    SDL_Rect outer_rect;
+
+    outer_rect.x =x; outer_rect.y =y;
+    outer_rect.w = cell_w * xcells +1;
+    outer_rect.h = cell_h * ycells +1;
+
+    SDL_SetRenderDrawColor(rend, 255,0,0,255);
+    SDL_RenderDrawRect(rend, &outer_rect);
+
+    //SDL_RenderDrawLine(rend, x+cell_w,y+1,x+cell_w,y+outer_rect.h-2);
+
+    int i=1;
+    for (i=1 ; i < xcells ; i++) {
+        SDL_RenderDrawLine(rend, x+(cell_w * i),y+1,x+(cell_w * i),y+outer_rect.h-2);
+    }
+
+    for (i=1 ; i < ycells ; i++) {
+        SDL_RenderDrawLine(rend, x+1, y+(cell_h * i) ,x+outer_rect.w-2 ,y+(cell_h * i));
+    }
+
+}
 
 int main(int argc, char *argv[])
 {
@@ -68,7 +90,7 @@ int main(int argc, char *argv[])
 
 
 
-    SDL_Surface* surface = TTF_RenderText_Solid(myfont, "255", White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+    SDL_Surface* surface = TTF_RenderText_Solid(myfont, "1010", White); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
 
     // load the image into memory using SDL_image library function
 //    SDL_Surface* surface = IMG_Load("resources/hello.png");
@@ -139,6 +161,9 @@ int main(int argc, char *argv[])
 
         SDL_SetRenderDrawColor(rend, 255,0,0,255);
         SDL_RenderDrawRect(rend, &border);
+
+        draw_grid(rend, 25,25, border.w+20, border.h+20, 4, 16);
+
         SDL_RenderPresent(rend);
 
         // wait 1/60th of a second
