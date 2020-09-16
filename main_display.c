@@ -21,12 +21,22 @@ void fix_border(SDL_Rect *border) {
     border->h += 1-(33 * border->h / 100) +1;
 }
 
-void draw_grid(SDL_Renderer *rend, int x, int y, int cell_w, int cell_h, int xcells, int ycells) {
+typedef struct grid {
+    int x;
+    int y;
+    int cell_w;
+    int cell_h;
+    int xcells;
+    int ycells;
+} grid;
+
+
+void draw_grid(SDL_Renderer *rend, grid *pgrid){ //int x, int y, int cell_w, int cell_h, int xcells, int ycells) {
     SDL_Rect outer_rect;
 
-    outer_rect.x =x; outer_rect.y =y;
-    outer_rect.w = cell_w * xcells +1;
-    outer_rect.h = cell_h * ycells +1;
+    outer_rect.x =pgrid->x; outer_rect.y =pgrid->y;
+    outer_rect.w = pgrid->cell_w * pgrid->xcells +1;
+    outer_rect.h = pgrid->cell_h * pgrid->ycells +1;
 
     SDL_SetRenderDrawColor(rend, 255,0,0,255);
     SDL_RenderDrawRect(rend, &outer_rect);
@@ -34,12 +44,14 @@ void draw_grid(SDL_Renderer *rend, int x, int y, int cell_w, int cell_h, int xce
     //SDL_RenderDrawLine(rend, x+cell_w,y+1,x+cell_w,y+outer_rect.h-2);
 
     int i=1;
-    for (i=1 ; i < xcells ; i++) {
-        SDL_RenderDrawLine(rend, x+(cell_w * i),y+1,x+(cell_w * i),y+outer_rect.h-2);
+    for (i=1 ; i < pgrid->xcells ; i++) {
+        SDL_RenderDrawLine(rend, pgrid->x + (pgrid->cell_w * i), pgrid->y + 1, pgrid->x + (pgrid->cell_w * i),
+                           pgrid->y + outer_rect.h - 2);
     }
 
-    for (i=1 ; i < ycells ; i++) {
-        SDL_RenderDrawLine(rend, x+1, y+(cell_h * i) ,x+outer_rect.w-2 ,y+(cell_h * i));
+    for (i=1 ; i < pgrid->ycells ; i++) {
+        SDL_RenderDrawLine(rend, pgrid->x + 1, pgrid->y + (pgrid->cell_h * i), pgrid->x + outer_rect.w - 2,
+                           pgrid->y + (pgrid->cell_h * i));
     }
 
 }
@@ -66,7 +78,7 @@ int main(int argc, char *argv[])
 
     // create a renderer, which sets up the graphics hardware
     Uint32 render_flags = SDL_RENDERER_ACCELERATED;
-    SDL_Renderer* rend = SDL_CreateRenderer(win, -1, render_flags);
+    SDL_Renderer *rend = SDL_CreateRenderer(win, -1, render_flags);
     if (!rend)
     {
         printf("error creating renderer: %s\n", SDL_GetError());
@@ -74,6 +86,15 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return 1;
     }
+
+//    SDL_Renderer *rend_grid = SDL_CreateRenderer(win, -1, render_flags);
+//    if (!rend_grid)
+//    {
+//        printf("error creating renderer for grid: %s\n", SDL_GetError());
+//        SDL_DestroyWindow(win);
+//        SDL_Quit();
+//        return 1;
+//    }
 
     TTF_Init();
     TTF_Font* myfont = TTF_OpenFont("resources/consola.ttf", 24); //this opens a font style and sets a size
@@ -162,7 +183,11 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(rend, 255,0,0,255);
         SDL_RenderDrawRect(rend, &border);
 
-        draw_grid(rend, 25,25, border.w+20, border.h+20, 4, 16);
+        grid grid1 = {25,25, border.w+20, border.h+20, 4, 16};
+
+        draw_grid(rend, &grid1);
+
+        //*rend = *rend_grid;
 
         SDL_RenderPresent(rend);
 
