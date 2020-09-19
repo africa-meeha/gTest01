@@ -7,12 +7,16 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include "shared_mem.h"
 
 const int WINDOW_WIDTH = 1920;//1080*1.5;
 const int WINDOW_HEIGHT = 1080;//720*1.5;
 
-const int N = 4;
-const int MAX = 15; // (2 ** 4)-1
+#define NVAL 4
+#define MAX 15 // (2 ** 4)-1
+
+int (*RefSet)[3];
+int (*aTable)[NVAL];
 
 SDL_Window *win1;
 SDL_Renderer *rend1;
@@ -95,11 +99,11 @@ grid ref_grid, table_grid;
 int init_grids() {
 
     int int1 = 0;
-    for (int i =0; i<N; i++) {
+    for (int i =0; i<NVAL; i++) {
         int1+= ipow(10,i) * 8;
     }
     char *text1;// = "hello";
-    text1 = (char*)malloc((N+1)*sizeof(char));
+    text1 = (char*)malloc((NVAL+1)*sizeof(char));
     sprintf(text1,"%d",int1);
     SDL_Surface* surface = TTF_RenderText_Solid(font1, text1, WHITE); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
     free(text1);
@@ -150,19 +154,24 @@ int init_grids() {
     SDL_SetRenderDrawColor(rend1, 0,255,0,255); //Green
 
 
-    grid grid3 = { ref_header_grid.right + 3,ref_header_grid.y, border.w, border.h, N, 1};
+    grid grid3 = { ref_header_grid.right + 3,ref_header_grid.y, border.w, border.h, NVAL, 1};
     table_header_grid = grid3;
 
     draw_grid(rend1, &table_header_grid);
 
-    grid grid4 = { table_header_grid.x,ref_grid.y, border.w, border.h, N, MAX+1};
+    grid grid4 = { table_header_grid.x,ref_grid.y, border.w, border.h, NVAL, MAX+1};
     table_grid = grid4;
 
     draw_grid(rend1, &table_grid);
 }
 
+
+
 int main(int argc, char *argv[])
 {
+
+    init_tables();
+
     // attempt to initialize graphics and timer system
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
     {

@@ -17,7 +17,7 @@ find_package(SDL2 REQUIRED)
 #doesn't seem to be required
 #include_directories(${SDL2_INCLUDE_DIR})
 
-set(SOURCE_FILES main_display.c)
+set(SOURCE_FILES main_display.c shared_mem.c shared_mem.h)
 
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES} )
 
