@@ -12,11 +12,7 @@
 const int WINDOW_WIDTH = 1920;//1080*1.5;
 const int WINDOW_HEIGHT = 1080;//720*1.5;
 
-#define NVAL 4
-#define MAX 15 // (2 ** 4)-1
 
-int (*RefSet)[3];
-int (*aTable)[NVAL];
 
 SDL_Window *win1;
 SDL_Renderer *rend1;
@@ -165,12 +161,18 @@ int init_grids() {
     draw_grid(rend1, &table_grid);
 }
 
-
+int (*RefSet)[3];
+int (*aTable)[NVAL];
 
 int main(int argc, char *argv[])
 {
-
-    init_tables();
+    int table1[MAX+1][3];
+    RefSet = table1;
+    int table2[MAX+1][NVAL];
+    aTable = table2;
+    //init_tables();
+    randomize_tables(MAX+1);
+    print_tables();
 
     // attempt to initialize graphics and timer system
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
@@ -179,7 +181,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    win1 = SDL_CreateWindow("Hello, CS50!",
+    win1 = SDL_CreateWindow("Main Display",
                                        SDL_WINDOWPOS_CENTERED,
                                        SDL_WINDOWPOS_CENTERED,
                                        WINDOW_WIDTH, WINDOW_HEIGHT,0);
