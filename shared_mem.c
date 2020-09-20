@@ -13,6 +13,10 @@ extern int (*aTable)[NVAL];
 
 
 void init_tables(){
+    time_t t;
+    /* Intializes random number generator */
+    srand((unsigned) time(&t));
+
     for (int i=0;i<=MAX;i++) {
         for(int j=0; j<3; j++) {
             RefSet[i][j] = i;
@@ -25,9 +29,9 @@ void init_tables(){
 }
 
 void randomize_tables(int val){
-    time_t t;
+    //time_t t;
     /* Intializes random number generator */
-    srand((unsigned) time(&t));
+    //srand((unsigned) time(&t));
 
     for (int i=0;i<=MAX;i++) {
         for(int j=0; j<3; j++) {
