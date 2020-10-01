@@ -96,7 +96,34 @@ void draw_grid(SDL_Renderer *rend, grid *pgrid){ //int x, int y, int cell_w, int
 grid ref_header_grid, table_header_grid;
 grid ref_grid, table_grid;
 
+SDL_Texture *tex_from_text(char *text1) {
+    //char *text1;// = "hello";
+    //text1 = (char*)malloc((NVAL+1)*sizeof(char));
+    //sprintf(text1,"%d",int1);
+    SDL_Surface* surface = TTF_RenderText_Solid(font1, text1, WHITE); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
+    //free(text1);
 
+    if (!surface)
+    {
+        printf("error creating text surface: %s\n", SDL_GetError());
+        //TTF_CloseFont(font1);
+        return 0;
+    }
+
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend1, surface);
+    SDL_FreeSurface(surface);
+
+    if (!tex)
+    {
+        printf("error creating texture: %s\n", SDL_GetError());
+        SDL_DestroyRenderer(rend1);
+        SDL_DestroyWindow(win1);
+        SDL_Quit();
+        return 0;
+    }
+
+    return tex;
+}
 
 int init_grids() {
 
@@ -165,36 +192,46 @@ int init_grids() {
     table_grid = grid4;
 
     draw_grid(rend1, &table_grid);
-}
 
-SDL_Texture *tex_from_text(char *text1) {
     //char *text1;// = "hello";
-    //text1 = (char*)malloc((NVAL+1)*sizeof(char));
-    //sprintf(text1,"%d",int1);
-    SDL_Surface* surface = TTF_RenderText_Solid(font1, text1, WHITE); // as TTF_RenderText_Solid could only be used on SDL_Surface then you have to create the surface first
-    //free(text1);
+    text1 = (char*)malloc((NVAL+1)*sizeof(char));
 
-    if (!surface)
-    {
-        printf("error creating text surface: %s\n", SDL_GetError());
-        //TTF_CloseFont(font1);
-        return 0;
+    SDL_Rect bg_table;
+    bg_table.w = table_header_grid.cell_w-20;
+    bg_table.h = table_header_grid.cell_h-20;
+    //bg_table.x = table_grid.x + (j * table_grid.cell_w) + 10;
+    bg_table.y = table_header_grid.y + (0 * table_header_grid.cell_h) + 10;
+    //border.x = table_grid.x + (j * table_grid.cell_w) + (table_grid.cell_w-border.w)/2;
+    border.y = 8+table_header_grid.y + (0 * table_header_grid.cell_h) + (table_header_grid.cell_h-border.h)/2 ;
+
+
+    for(int j=0; j<NVAL; j++) {
+        //printf("%d  \t", aTable[i][j]);
+        sprintf(text1,"%d",j+1);
+        SDL_Texture *tex = tex_from_text(text1);
+
+        SDL_QueryTexture(tex, NULL, NULL, &border.w, &border.h);
+
+        //fix_border_size(&border);
+
+        bg_table.x = table_header_grid.x + (j * table_header_grid.cell_w) + 10;
+        //bg_table.y = table_grid.y + (i * table_grid.cell_h) + 10;
+        border.x = table_header_grid.x + (j * table_header_grid.cell_w) + (table_header_grid.cell_w-border.w)/2;
+        //border.y = table_grid.y + (i * table_grid.cell_h) + (table_grid.cell_h-border.h)/2 ;
+
+        //fix_border_pos(&border);
+
+        SDL_SetRenderDrawColor(rend1, 0,0,0,255);
+        SDL_RenderFillRect(rend1, &bg_table);
+        SDL_RenderCopy(rend1, tex, NULL, &border);
+
+        SDL_DestroyTexture(tex); // Wittness memory leak without this line
     }
 
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend1, surface);
-    SDL_FreeSurface(surface);
-
-    if (!tex)
-    {
-        printf("error creating texture: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(rend1);
-        SDL_DestroyWindow(win1);
-        SDL_Quit();
-        return 0;
-    }
-
-    return tex;
+    free(text1);
 }
+
+
 
 
 int (*RefSet)[3];
